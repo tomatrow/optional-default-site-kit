@@ -1,6 +1,6 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte"
-    import { delay } from "$lib/utility/delay"
+    import { delay } from "$lib/functions/delay"
 
     const dispatch = createEventDispatcher()
 
