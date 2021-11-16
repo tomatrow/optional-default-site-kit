@@ -15,9 +15,10 @@ specifiers:
   svelte-check: ^2.2.6
   svelte-preprocess: ^4.9.8
   svelte-typed-context: ^1.0.1
+  svelte2tsx: ^0.4.9
   tailwindcss: ^2.2.16
   tslib: ^2.3.1
-  typescript: ^4.4.3
+  typescript: ^4.4.4
 
 devDependencies:
   '@sveltejs/kit': 1.0.0-next.196_sass@1.43.4+svelte@3.44.1
@@ -34,6 +35,7 @@ devDependencies:
   svelte-check: 2.2.8_bf0c01a0772ccd4da00c2559c51a092e
   svelte-preprocess: 4.9.8_a78a9a02868abf7f9fcaeaa488e2fd35
   svelte-typed-context: 1.0.1_svelte@3.44.1
+  svelte2tsx: 0.4.9_svelte@3.44.1+typescript@4.4.4
   tailwindcss: 2.2.19_0c54bdadaf9d9c9c6c134cb2c6c061a3
   tslib: 2.3.1
   typescript: 4.4.4
@@ -521,6 +523,10 @@ packages:
         optional: true
     dependencies:
       ms: 2.1.2
+    dev: true
+
+  /dedent-js/1.0.1:
+    resolution: {integrity: sha1-vuX7fJ5yfYXf+iRZDRDsGrElUwU=}
     dev: true
 
   /defined/1.0.0:
@@ -1022,6 +1028,12 @@ packages:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
     dev: true
 
+  /lower-case/2.0.2:
+    resolution: {integrity: sha512-7fm3l3NAF9WfN6W3JOmf5drwpVqX78JtoGJ3A6W0a6ZnldM41w2fV5D490psKFTpMds8TJse/eHLFFsNHHjHgg==}
+    dependencies:
+      tslib: 2.3.1
+    dev: true
+
   /magic-string/0.25.7:
     resolution: {integrity: sha512-4CrMT5DOHTDk4HYDlzmwu4FVCcIYI8gauveasrdCu2IKIFOJ3f0v/8MDGJCDL9oD2ppz/Av1b0Nj345H9M+XIA==}
     dependencies:
@@ -1087,6 +1099,13 @@ packages:
     hasBin: true
     dev: true
 
+  /no-case/3.0.4:
+    resolution: {integrity: sha512-fgAN3jGAh+RoxUGZHTSOLJIqUc2wmoBwGR4tbpNAKmmovFoWq0OdRkb0VkldReO2a2iBT/OEulG9XSUc10r3zg==}
+    dependencies:
+      lower-case: 2.0.2
+      tslib: 2.3.1
+    dev: true
+
   /node-emoji/1.11.0:
     resolution: {integrity: sha512-wo2DpQkQp7Sjm2A0cq+sN7EHKO6Sl0ctXeBdFZrL9T9+UywORbufTcTZxom8YqpLQt/FqNMUkOpkZrJVYSKD3A==}
     dependencies:
@@ -1144,6 +1163,13 @@ packages:
       error-ex: 1.3.2
       json-parse-even-better-errors: 2.3.1
       lines-and-columns: 1.1.6
+    dev: true
+
+  /pascal-case/3.1.2:
+    resolution: {integrity: sha512-uWlGT3YSnK9x3BQJaOdcZwrnV6hPpd8jFH1/ucpiLRPh/2zCVJKS19E4GvYHvaCcACn3foXZ0cLB9Wrx1KGe5g==}
+    dependencies:
+      no-case: 3.0.4
+      tslib: 2.3.1
     dev: true
 
   /path-is-absolute/1.0.1:
@@ -1832,6 +1858,18 @@ packages:
   /svelte/3.44.1:
     resolution: {integrity: sha512-4DrCEJoBvdR689efHNSxIQn2pnFwB7E7j2yLEJtHE/P8hxwZWIphCtJ8are7bjl/iVMlcEf5uh5pJ68IwR09vQ==}
     engines: {node: '>= 8'}
+    dev: true
+
+  /svelte2tsx/0.4.9_svelte@3.44.1+typescript@4.4.4:
+    resolution: {integrity: sha512-FXly9uQTzdLFliTF86mfkT8MgR1DGJ3yvRC/jv2t2RoRLKNgLaXBv8DP2o2RcJL+NQ2X4kRD3IQsf9/99KZ5mg==}
+    peerDependencies:
+      svelte: ^3.24
+      typescript: ^4.1.2
+    dependencies:
+      dedent-js: 1.0.1
+      pascal-case: 3.1.2
+      svelte: 3.44.1
+      typescript: 4.4.4
     dev: true
 
   /svgo/2.8.0:

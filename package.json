@@ -27,9 +27,10 @@
         "svelte-check": "^2.2.6",
         "svelte-preprocess": "^4.9.8",
         "svelte-typed-context": "^1.0.1",
+        "svelte2tsx": "^0.4.9",
         "tailwindcss": "^2.2.16",
         "tslib": "^2.3.1",
-        "typescript": "^4.4.3"
+        "typescript": "^4.4.4"
     },
     "type": "module",
     "homepage": "https://github.com/tomatrow/optional-default-site-kit#readme"
