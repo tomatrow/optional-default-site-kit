@@ -12,11 +12,14 @@
         "format": "prettier --write .",
         "publish": "pnpm run lint && pnpm run package && pnpm publish ./package"
     },
+    "dependencies": {
+        "lodash": "^4.17.21",
+        "svelte-typed-context": "^1.0.1"
+    },
     "devDependencies": {
         "@sveltejs/kit": "next",
         "autoprefixer": "^10.3.7",
         "cssnano": "^5.0.8",
-        "lodash": "^4.17.21",
         "postcss": "^8.3.9",
         "postcss-load-config": "^3.1.0",
         "postcss-nested": "^5.0.6",
@@ -26,12 +29,12 @@
         "svelte": "^3.42.6",
         "svelte-check": "^2.2.6",
         "svelte-preprocess": "^4.9.8",
-        "svelte-typed-context": "^1.0.1",
         "svelte2tsx": "^0.4.9",
         "tailwindcss": "^2.2.16",
         "tslib": "^2.3.1",
         "typescript": "^4.4.4"
     },
     "type": "module",
-    "homepage": "https://github.com/tomatrow/optional-default-site-kit#readme"
+    "homepage": "https://github.com/tomatrow/optional-default-site-kit#readme",
+    "author": "AJ Caldwell <tomatrow@gmail.com>"
 }
