@@ -1,4 +1,5 @@
 import type { RequestHandler } from "@sveltejs/kit"
+import type { RequestHeaders } from "@sveltejs/kit/types/helper"
 
 type Fetch = typeof fetch
 
@@ -13,7 +14,7 @@ export type Method = "get" | "put" | "post" | "patch" | "delete"
 export interface RequestConfig<Body = any> {
     method?: Method
     body?: Body
-    headers?: HeadersInit
+    headers?: RequestHeaders
     fetch?: typeof fetch
 }
 
@@ -29,7 +30,7 @@ export type Request = <Input, Output>(url: string, config?: RequestConfig<Input>
 
 export const request: Request = async (url, config = {}) => {
     const { body } = config
-    const headers = new Headers(config.headers ?? {})
+    const headers = config.headers ?? {}
 
     const init: RequestInit = {
         method: config.method ?? (body ? "post" : "get"),
@@ -38,7 +39,8 @@ export const request: Request = async (url, config = {}) => {
 
     if (body) {
         init.body = typeof body === "string" ? body : JSON.stringify(body)
-        if (!headers.has("content-type")) headers.set("content-type", "application/json")
+        if (!Object.keys(headers).find(header => header.toLowerCase() === "content-type"))
+            headers["content-type"] = "application/json"
     }
 
     const fetch = config.fetch ?? installedFetch
@@ -51,11 +53,7 @@ export const request: Request = async (url, config = {}) => {
             status: response.status,
             error: response.statusText,
             url,
-            /* @ts-ignore */
-            headers: Array.from(headers.entries()).reduce(
-                (acc, [key, value]) => ((acc[key] = value), acc),
-                {}
-            ),
+            headers,
             method: init.method,
             content: null
         }
