@@ -3,13 +3,11 @@ import type { StrictBody } from "@sveltejs/kit/types/hooks"
 
 export interface ProxyHandlerConfig {
     proxy: (request: Request) => Request
-    ssl?: boolean
     transformResponse?: (response: Response) => Response
 }
 
 export function createProxyHandler({
     proxy,
-    ssl = true,
     transformResponse = response => response
 }: ProxyHandlerConfig): Handle {
     return async ({ request, resolve }) => {
@@ -17,20 +15,13 @@ export function createProxyHandler({
 
         if (!mapping) return await resolve(request)
 
-        let { method, rawBody, headers, host, path, query } = mapping
+        let { method, rawBody, headers, url } = mapping
 
-        let url = `http${ssl ? "s" : ""}://${host}${path}`
-        const search = query.toString()
-        if (search) url += "?" + search
-
-        const init: RequestInit = {
-            method,
-            headers
-        }
+        const init: RequestInit = { method, headers }
 
         if (rawBody) init.body = rawBody
 
-        const response = await fetch(url, init)
+        const response = await fetch(url.toString(), init)
 
         let body: StrictBody
         try {
