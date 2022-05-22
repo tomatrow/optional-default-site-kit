@@ -1,9 +1,11 @@
-export async function preloadImage(href: string) {
-    await new Promise((resolve, reject) => {
-        const image = new Image()
-        image.onload = resolve
-        image.onerror = reject
-        image.src = href
-    })
-    return href
+export async function preloadImage(src: string) {
+    const image = new Image()
+    await new Promise((onload, onerror) =>
+        Object.assign(image, {
+            onload,
+            onerror,
+            src
+        })
+    )
+    return src
 }

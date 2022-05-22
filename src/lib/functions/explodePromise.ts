@@ -1,11 +1,10 @@
 export function explodePromise<Value = unknown>() {
-    let resolve: (value?: Value) => void
-    let reject: () => void
-
-    const promise = new Promise<Value>((res, rej) => {
-        resolve = res
-        reject = rej
+    const promise = new Promise<Value>((resolve, reject) => {
+        Object.assign(promise, {
+            resolve,
+            reject
+        })
     })
 
-    return { promise, resolve, reject }
+    return promise
 }

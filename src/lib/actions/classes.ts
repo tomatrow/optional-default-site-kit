@@ -8,7 +8,7 @@ function parseBuildExpressions(listOrSingleton: BuildExpressionMaybeList) {
     const list = Array.isArray(listOrSingleton) ? listOrSingleton : [listOrSingleton]
     return list
         .filter(Boolean)
-        .flatMap((x: string) => x?.split(" "))
+        .flatMap(x => (x as string)?.split(" "))
         .filter(Boolean)
 }
 
@@ -17,11 +17,8 @@ export const classes: Action<BuildExpressionMaybeList> = (node, listOrSingleton)
 
     function update(listOrSingleton: BuildExpressionMaybeList = []) {
         node.classList.remove(...last)
-
         const next = parseBuildExpressions(listOrSingleton)
-
         node.classList.add(...next)
-
         last = next
     }
 

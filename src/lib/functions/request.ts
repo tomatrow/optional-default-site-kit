@@ -1,7 +1,10 @@
-import type { RequestHandler } from "@sveltejs/kit"
-import type { RequestHeaders } from "@sveltejs/kit/types/helper"
+import type { JSONValue } from "@sveltejs/kit/types/private"
 
 type Fetch = typeof fetch
+type Headers = RequestInit["headers"] | Record<string|number, any>
+type ArrayHeaders = string[][]
+type Content = ArrayBuffer | FormData | JSONValue
+type Cancellable = { cancel: AbortController["abort"] }
 
 let installedFetch: Fetch
 
@@ -11,76 +14,106 @@ export function installFetch(newFetch: Fetch) {
 
 export type Method = "get" | "put" | "post" | "patch" | "delete"
 
-export interface RequestConfig<Body = any> {
+export interface RequestConfig<Body = any> extends Omit<RequestInit, "method" | "body" | "headers"> {
     method?: Method
+    headers?: Headers
     body?: Body
-    headers?: RequestHeaders
-    fetch?: typeof fetch
+    fetch?: Fetch
 }
 
-async function getContent(response: Response) {
-    const contentType = response.headers.get("content-type")
-    if (contentType?.match(/application\/json/)) return await response.json()
-    else if (contentType?.match(/text\/plain/)) return await response.text()
-    else if (contentType?.match(/multipart\/form-data/)) return await response.formData()
-    else return await response.blob()
+async function getContent(response: Response, headers: ArrayHeaders = []): Promise<Content> {
+    const accepts = headers.find(([header]) => header.toLowerCase() === "accept")?.[1].toLowerCase().split(",") ?? []
+    const mimes = [
+        response.headers.get("content-type"),
+        accepts.length === 1 && accepts[0]
+    ].filter(Boolean) as string[]
+
+    const method = (mimes.map(mime =>
+        mime.match(/text\/plain/)
+        ? "text"
+        : mime.match(/application\/json/)
+        ? "json"
+        : mime.match(/multipart\/form-data/)
+        ? "formData"
+        : null
+    ).find(Boolean) ?? "arrayBuffer")
+
+    return response[method]()
 }
 
-export type Request = <Input, Output>(url: string, config?: RequestConfig<Input>) => Promise<Output>
+export type Request = <Input, Output = Content>(url: string, config?: RequestConfig<Input>) => Promise<Output> & Cancellable
 
-export const request: Request = async (url, config = {}) => {
-    const { body } = config
-    const headers = config.headers ?? {}
-
-    const init: RequestInit = {
-        method: config.method ?? (body ? "post" : "get"),
-        headers
-    }
-
-    if (body) {
-        init.body = typeof body === "string" ? body : JSON.stringify(body)
-        if (!Object.keys(headers).find(header => header.toLowerCase() === "content-type"))
-            headers["content-type"] = "application/json"
-    }
-
-    const fetch = config.fetch ?? installedFetch
+export const request: Request = (url, { body, headers, method, signal, ...init } = {}) => {
+    const fetch = init.fetch ?? installedFetch ?? globalThis?.fetch
     if (!fetch) throw new Error("Fetch not resolved")
+    delete init.fetch
 
-    const response = await fetch(url, init)
+    headers = normalizeHeaders(headers)
 
-    if (response.status < 200 || response.status >= 300) {
-        const info = {
-            status: response.status,
-            error: response.statusText,
-            url,
-            headers,
-            method: init.method,
-            content: null
-        }
-
-        try {
-            info.content = await getContent(response)
-        } catch (error) {
-            console.error(error)
-        }
-
-        return Promise.reject(info)
+    // convert body to post json by default
+    if (body && typeof body !== "string") {
+        // @ts-ignore
+        body = JSON.stringify(body)
+        headers.push(["content-type", "application/json"])
     }
 
-    return await getContent(response)
+    // easy cancelling if no signal is passed
+    let cancel: AbortController["abort"] = () => {}
+    if (!signal) {
+        const controller = new AbortController()
+        signal = controller.signal
+        cancel = controller.abort.bind(controller)
+    }
+
+    // apply all the defaults
+    Object.assign(init, {
+        method: method ?? (body ? "post" : "get"),
+        headers,
+        // @ts-ignore
+        body,
+        signal
+    })
+
+    return Object.assign(
+        _fetch(url, init),
+        { cancel }
+    )
 }
 
-export type UnpackHandler<Handler> = Handler extends RequestHandler<
-    infer Locals,
-    infer Input,
-    infer Output
->
-    ? { locals: Locals; input: Input; output: Output }
-    : unknown
+async function _fetch(url: string, init: RequestInit) {
+    const response = await fetch(url, init)
+    // throw for non 2xx codes
+    if (response.status < 200 || response.status >= 300)
+        throw new RequestError(init, response)
+    return await getContent(response, init.headers as ArrayHeaders) as any
+}
 
-export type ServerRequest = <Handler extends RequestHandler = RequestHandler>(
-    url: string,
-    config?: RequestConfig<UnpackHandler<Handler>["input"]>
-) => Promise<UnpackHandler<Handler>["output"]>
+export interface RequestError {
+    init: RequestInit
+    response: Response
+    content: ReturnType<typeof getContent>
+}
 
-export const serverRequest: ServerRequest = request
+export class RequestError extends Error {
+    constructor(init: RequestInit, response: Response) {
+        super(response.statusText)
+        Object.assign(this, {
+            name: `Response ${response.status}`,
+            init,
+            response,
+            get content() {
+                return getContent(response, init.headers as ArrayHeaders)
+            }
+        })
+    }
+}
+
+function normalizeHeaders(headers: Headers = []): ArrayHeaders {
+    return headers?.forEach
+    // @ts-ignore
+    ? [...headers.entries()]
+    : !Array.isArray(headers)
+    ? Object.entries(headers).map(([key, value]) => [key, String(value)])
+    : headers
+}
+

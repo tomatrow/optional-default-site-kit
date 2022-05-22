@@ -1,4 +1,5 @@
-import type { Request, Response } from "@sveltejs/kit"
+import type { RequestEvent } from "@sveltejs/kit/types/internal"
+import type { Handle } from "@sveltejs/kit"
 
 interface BuildConfig {
     separator?: string
@@ -11,7 +12,7 @@ interface FormatterConfig extends Omit<BuildConfig, "values"> {
 }
 
 function get_header<T>(headers: Record<string, T>, header: string) {
-    return Object.entries(headers).find(([key]) => key.toLowerCase().includes(header))?.[1]
+    return Object.entries(headers).find(([key]) => key.toLowerCase().includes(header.toLowerCase()))?.[1]
 }
 
 function build_log({ separator = " ", replacement = "-", values }: BuildConfig) {
@@ -23,29 +24,49 @@ function build_headers(headers: Record<string, any>, names: string[]) {
 }
 
 export function formatRequest({
-    request: { method, host, path, query, headers, rawBody },
+    event: { url, request },
     headers: headerNames = ["referer", "content-type", "user-agent"],
     ...buildConfig
-}: FormatterConfig & { request: Request }) {
-    const search = query.toString()
+}: FormatterConfig & { event: RequestEvent }) {
     return build_log({
         ...buildConfig,
         values: [
-            method,
-            `${host}${path}` + (search ? "?" : "") + search,
-            rawBody?.length,
-            ...build_headers(headers, headerNames)
+            request.method,
+            url.toString(),
+            ...build_headers(request.headers, headerNames)
         ]
     })
 }
 
 export function formatResponse({
-    response: { status, headers, body },
-    headers: headerNames = ["content-type"],
+    response: { status, headers },
+    headers: headerNames = ["content-type", "content-length"],
     ...buildConfig
 }: FormatterConfig & { response: Response }) {
     return build_log({
         ...buildConfig,
-        values: [status, body?.length, ...build_headers(headers, headerNames)]
+        values: [status, ...build_headers(headers, headerNames)]
     })
+}
+
+interface CreateHandlerInput {
+    requestHeaders?: string[]
+    responseHeaders?: string[]
+    log?: Function
+}
+
+
+type CreateHandler = (input: CreateHandlerInput) => Handle
+
+export const createHandler: CreateHandler = ({
+    requestHeaders,
+    responseHeaders,
+    log = console.log
+} = {}) => {
+    return async function handleLog({ event, resolve }) {
+        log(formatRequest({ event, headers: requestHeaders }))
+        const response = await resolve(event)
+        log(formatResponse({ response, headers: responseHeaders }))
+        return response
+    }
 }
