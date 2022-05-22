@@ -28,7 +28,13 @@ async function getContent(response: Response, headers: ArrayHeaders = []): Promi
             .find(([header]) => header.toLowerCase() === "accept")?.[1]
             .toLowerCase()
             .split(",") ?? []
-    const mimes = [response.headers.get("content-type"), accepts.length === 1 && accepts[0]].filter(
+
+    // prettier-ignore
+    const mimes = [
+        // force content type if there is only one accept
+        accepts.length === 1 && accepts[0],
+        response.headers.get("content-type")
+    ].filter(
         Boolean
     ) as string[]
 
