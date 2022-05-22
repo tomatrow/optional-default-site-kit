@@ -12,7 +12,9 @@ interface FormatterConfig extends Omit<BuildConfig, "values"> {
 }
 
 function get_header<T>(headers: Record<string, T>, header: string) {
-    return Object.entries(headers).find(([key]) => key.toLowerCase().includes(header.toLowerCase()))?.[1]
+    return Object.entries(headers).find(([key]) =>
+        key.toLowerCase().includes(header.toLowerCase())
+    )?.[1]
 }
 
 function build_log({ separator = " ", replacement = "-", values }: BuildConfig) {
@@ -30,11 +32,7 @@ export function formatRequest({
 }: FormatterConfig & { event: RequestEvent }) {
     return build_log({
         ...buildConfig,
-        values: [
-            request.method,
-            url.toString(),
-            ...build_headers(request.headers, headerNames)
-        ]
+        values: [request.method, url.toString(), ...build_headers(request.headers, headerNames)]
     })
 }
 
@@ -54,7 +52,6 @@ interface CreateHandlerInput {
     responseHeaders?: string[]
     log?: Function
 }
-
 
 type CreateHandler = (input: CreateHandlerInput) => Handle
 

@@ -1,7 +1,7 @@
 import type { JSONValue } from "@sveltejs/kit/types/private"
 
 type Fetch = typeof fetch
-type Headers = RequestInit["headers"] | Record<string|number, any>
+type Headers = RequestInit["headers"] | Record<string | number, any>
 type ArrayHeaders = string[][]
 type Content = ArrayBuffer | FormData | JSONValue
 type Cancellable = { cancel: AbortController["abort"] }
@@ -14,7 +14,8 @@ export function installFetch(newFetch: Fetch) {
 
 export type Method = "get" | "put" | "post" | "patch" | "delete"
 
-export interface RequestConfig<Body = any> extends Omit<RequestInit, "method" | "body" | "headers"> {
+export interface RequestConfig<Body = any>
+    extends Omit<RequestInit, "method" | "body" | "headers"> {
     method?: Method
     headers?: Headers
     body?: Body
@@ -22,26 +23,35 @@ export interface RequestConfig<Body = any> extends Omit<RequestInit, "method" | 
 }
 
 async function getContent(response: Response, headers: ArrayHeaders = []): Promise<Content> {
-    const accepts = headers.find(([header]) => header.toLowerCase() === "accept")?.[1].toLowerCase().split(",") ?? []
-    const mimes = [
-        response.headers.get("content-type"),
-        accepts.length === 1 && accepts[0]
-    ].filter(Boolean) as string[]
+    const accepts =
+        headers
+            .find(([header]) => header.toLowerCase() === "accept")?.[1]
+            .toLowerCase()
+            .split(",") ?? []
+    const mimes = [response.headers.get("content-type"), accepts.length === 1 && accepts[0]].filter(
+        Boolean
+    ) as string[]
 
-    const method = (mimes.map(mime =>
-        mime.match(/text\/plain/)
-        ? "text"
-        : mime.match(/application\/json/)
-        ? "json"
-        : mime.match(/multipart\/form-data/)
-        ? "formData"
-        : null
-    ).find(Boolean) ?? "arrayBuffer")
+    const method =
+        mimes
+            .map(mime =>
+                mime.match(/text\/plain/)
+                    ? "text"
+                    : mime.match(/application\/json/)
+                    ? "json"
+                    : mime.match(/multipart\/form-data/)
+                    ? "formData"
+                    : null
+            )
+            .find(Boolean) ?? "arrayBuffer"
 
     return response[method]()
 }
 
-export type Request = <Input, Output = Content>(url: string, config?: RequestConfig<Input>) => Promise<Output> & Cancellable
+export type Request = <Input, Output = Content>(
+    url: string,
+    config?: RequestConfig<Input>
+) => Promise<Output> & Cancellable
 
 export const request: Request = (url, { body, headers, method, signal, ...init } = {}) => {
     const fetch = init.fetch ?? installedFetch ?? globalThis?.fetch
@@ -74,18 +84,14 @@ export const request: Request = (url, { body, headers, method, signal, ...init }
         signal
     })
 
-    return Object.assign(
-        _fetch(url, init),
-        { cancel }
-    )
+    return Object.assign(_fetch(url, init), { cancel })
 }
 
 async function _fetch(url: string, init: RequestInit) {
     const response = await fetch(url, init)
     // throw for non 2xx codes
-    if (response.status < 200 || response.status >= 300)
-        throw new RequestError(init, response)
-    return await getContent(response, init.headers as ArrayHeaders) as any
+    if (response.status < 200 || response.status >= 300) throw new RequestError(init, response)
+    return (await getContent(response, init.headers as ArrayHeaders)) as any
 }
 
 export interface RequestError {
@@ -110,10 +116,9 @@ export class RequestError extends Error {
 
 function normalizeHeaders(headers: Headers = []): ArrayHeaders {
     return headers?.forEach
-    // @ts-ignore
-    ? [...headers.entries()]
-    : !Array.isArray(headers)
-    ? Object.entries(headers).map(([key, value]) => [key, String(value)])
-    : headers
+        ? // @ts-ignore
+          [...headers.entries()]
+        : !Array.isArray(headers)
+        ? Object.entries(headers).map(([key, value]) => [key, String(value)])
+        : headers
 }
-
