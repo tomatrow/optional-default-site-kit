@@ -20,8 +20,11 @@ specifiers:
   tslib: ^2.4.0
   typescript: ^4.6.4
 
+dependencies:
+  svelte-typed-context: 1.0.1_svelte@3.48.0
+
 devDependencies:
-  '@sveltejs/kit': 1.0.0-next.338_svelte@3.48.0
+  '@sveltejs/kit': 1.0.0-next.341_svelte@3.48.0
   autoprefixer: 10.4.7_postcss@8.4.14
   cssnano: 5.1.9_postcss@8.4.14
   lodash: 4.17.21
@@ -34,7 +37,6 @@ devDependencies:
   svelte-check: 2.7.1_bwfybwdzwmlevsatlte2x4gwcy
   svelte-language-server: 0.14.27_dy4wh27qz3vslmx2niomq7rfhq
   svelte-preprocess: 4.10.6_kwmypdju4ysizxi7azib3bf22y
-  svelte-typed-context: 1.0.1_svelte@3.48.0
   svelte2tsx: 0.5.10_wwvk7nlptlrqo2czohjtk6eiqm
   tailwindcss: 2.2.19_ugi4xkrfysqkt4c4y6hkyfj344
   tslib: 2.4.0
@@ -124,8 +126,8 @@ packages:
       picomatch: 2.3.1
     dev: true
 
-  /@sveltejs/kit/1.0.0-next.338_svelte@3.48.0:
-    resolution: {integrity: sha512-tqzSHB9ONjmUS8qsYUkypI1eg+FuyKVN5t0wEfIufv7X6ECK1xIRwU1A0igmNLPhqhTqAt3QNmFn2An0/8LbnQ==}
+  /@sveltejs/kit/1.0.0-next.341_svelte@3.48.0:
+    resolution: {integrity: sha512-WxVallEl6vm07e0nfJWfET5fUADcgRuJz28NkaTAwVoZrVXFPxobdSw9I6wgDp51C3MvWVCUQLfk1W23iC0RXA==}
     engines: {node: '>=16'}
     hasBin: true
     peerDependencies:
@@ -1947,7 +1949,7 @@ packages:
       svelte: ^3.38.2
     dependencies:
       svelte: 3.48.0
-    dev: true
+    dev: false
 
   /svelte/3.48.0:
     resolution: {integrity: sha512-fN2YRm/bGumvjUpu6yI3BpvZnpIm9I6A7HR4oUNYd7ggYyIwSA/BX7DJ+UXXffLp6XNcUijyLvttbPVCYa/3xQ==}
