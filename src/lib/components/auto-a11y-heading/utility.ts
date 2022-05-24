@@ -1,5 +1,5 @@
-import { setContext, getContext } from "svelte-typed-context"
-import type { InjectionKey } from "svelte-typed-context"
+import { setContext, getContext } from "$lib/utility/typed-context"
+import type { InjectionKey } from "$lib/utility/typed-context"
 import type { HeadingContext } from "./index.type"
 
 export const key: InjectionKey<HeadingContext> = Symbol("heading-level")
