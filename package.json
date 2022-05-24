@@ -34,8 +34,5 @@
     },
     "type": "module",
     "homepage": "https://github.com/tomatrow/optional-default-site-kit#readme",
-    "author": "AJ Caldwell <tomatrow@gmail.com>",
-    "dependencies": {
-        "svelte-typed-context": "^1.0.1"
-    }
+    "author": "AJ Caldwell <tomatrow@gmail.com>"
 }
