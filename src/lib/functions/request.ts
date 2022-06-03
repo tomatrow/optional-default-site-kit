@@ -38,7 +38,7 @@ async function getContent(response: Response, headers: ArrayHeaders = []): Promi
     const method =
         mimes
             .map(mime =>
-                mime.match(/text\/plain/)
+                mime.match(/text\/plain/) || mime.match(/text\/html/)
                     ? "text"
                     : mime.match(/application\/json/)
                     ? "json"
