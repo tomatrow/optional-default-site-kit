@@ -20,6 +20,7 @@ export interface RequestConfig<Body = any>
     headers?: Headers
     body?: Body
     fetch?: Fetch
+    parse?: boolean
 }
 
 async function getContent(response: Response, headers: ArrayHeaders = []): Promise<Content> {
@@ -59,7 +60,7 @@ export type Request = <Input, Output = Content>(
     config?: RequestConfig<Input>
 ) => Promise<Output> & Cancellable
 
-export const request: Request = (url, { body, headers, method, signal, ...init } = {}) => {
+export const request: Request = (url, { parse = true, body, headers, method, signal, ...init } = {}) => {
     const fetch = init.fetch ?? installedFetch ?? globalThis?.fetch
     if (!fetch) throw new Error("Fetch not resolved")
     delete init.fetch
@@ -90,14 +91,14 @@ export const request: Request = (url, { body, headers, method, signal, ...init }
         signal
     })
 
-    return Object.assign(_fetch(url, init), { cancel })
+    return Object.assign(_fetch(url, parse, init), { cancel })
 }
 
-async function _fetch(url: string, init: RequestInit) {
+async function _fetch(url: string, parse: boolean, init: RequestInit) {
     const response = await fetch(url, init)
     // throw for non 2xx codes
     if (response.status < 200 || response.status >= 300) throw new RequestError(init, response)
-    return (await getContent(response, init.headers as ArrayHeaders)) as any
+    return parse ? (await getContent(response, init.headers as ArrayHeaders)) as any : response
 }
 
 export interface RequestError {
