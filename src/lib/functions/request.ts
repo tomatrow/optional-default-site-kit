@@ -24,11 +24,7 @@ export interface RequestConfig<Body = any>
 }
 
 async function getContent(response: Response, headers: ArrayHeaders = []): Promise<Content> {
-    const accepts =
-        headers
-            .find(([header]) => header.toLowerCase() === "accept")?.[1]
-            .toLowerCase()
-            .split(",") ?? []
+    const accepts = find(headers, "accept")?.toLowerCase().split(",") ?? []
 
     // prettier-ignore
     const mimes = [
@@ -71,7 +67,8 @@ export const request: Request = (url, { parse = true, body, headers, method, sig
     if (body && typeof body !== "string") {
         // @ts-ignore
         body = JSON.stringify(body)
-        headers.push(["content-type", "application/json"])
+        if (!find(headers as ArrayHeaders, "content-type"))
+            headers.push(["content-type", "application/json"])
     }
 
     // easy cancelling if no signal is passed
@@ -128,4 +125,8 @@ function normalizeHeaders(headers: Headers = []): ArrayHeaders {
         : !Array.isArray(headers)
         ? Object.entries(headers).map(([key, value]) => [key, String(value)])
         : headers
+}
+
+function find(headers: ArrayHeaders, header: string) {
+    return headers.find(([otherHeader]) => otherHeader.toLowerCase() === header.toLowerCase())?.[1]
 }
