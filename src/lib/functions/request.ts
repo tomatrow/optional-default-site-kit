@@ -56,7 +56,10 @@ export type Request = <Input, Output = Content>(
     config?: RequestConfig<Input>
 ) => Promise<Output> & Cancellable
 
-export const request: Request = (url, { parse = true, body, headers, method, signal, ...init } = {}) => {
+export const request: Request = (
+    url,
+    { parse = true, body, headers, method, signal, ...init } = {}
+) => {
     const fetch = init.fetch ?? installedFetch ?? globalThis?.fetch
     if (!fetch) throw new Error("Fetch not resolved")
     delete init.fetch
@@ -95,7 +98,7 @@ async function _fetch(url: string, parse: boolean, init: RequestInit) {
     const response = await fetch(url, init)
     // throw for non 2xx codes
     if (response.status < 200 || response.status >= 300) throw new RequestError(init, response)
-    return parse ? (await getContent(response, init.headers as ArrayHeaders)) as any : response
+    return parse ? ((await getContent(response, init.headers as ArrayHeaders)) as any) : response
 }
 
 export interface RequestError {
