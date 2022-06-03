@@ -101,7 +101,7 @@ async function _fetch(url: string, parse: boolean, init: RequestInit) {
 export interface RequestError {
     init: RequestInit
     response: Response
-    content: ReturnType<typeof getContent>
+    getContent: () => Promise<Content>
 }
 
 export class RequestError extends Error {
@@ -111,9 +111,7 @@ export class RequestError extends Error {
             name: `Response ${response.status}`,
             init,
             response,
-            get content() {
-                return getContent(response, init.headers as ArrayHeaders)
-            }
+            getContent: () => getContent(response, init.headers as ArrayHeaders)
         })
     }
 }
