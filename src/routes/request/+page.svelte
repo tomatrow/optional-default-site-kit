@@ -17,7 +17,6 @@
             console.error(error)
             if (error instanceof RequestError) {
                 const { name, message, init, response } = error
-                // const value = await content
                 console.log({ name, message, init, response })
             }
         }
