@@ -91,10 +91,10 @@ export const request: Request = (
         signal
     })
 
-    return Object.assign(_fetch(url, parse, init), { cancel })
+    return Object.assign(_fetch(fetch, url, parse, init), { cancel })
 }
 
-async function _fetch(url: string, parse: boolean, init: RequestInit) {
+async function _fetch(fetch: Fetch, url: string, parse: boolean, init: RequestInit) {
     const response = await fetch(url, init)
     // throw for non 2xx codes
     if (response.status < 200 || response.status >= 300) throw new RequestError(init, response)
