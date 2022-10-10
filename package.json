@@ -1,6 +1,6 @@
 {
     "name": "optional-default-site-kit",
-    "version": "0.3.7",
+    "version": "0.3.8",
     "scripts": {
         "dev": "vite dev",
         "build": "svelte-kit sync && svelte-package",
